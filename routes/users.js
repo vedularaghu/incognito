@@ -60,25 +60,22 @@ router.post('/login',function(req,res,next){
   });
 });
 router.get('/submit/:username', function(req,res,next){
-  console.log(req.params.username);
   res.render('message', {username: req.params.username});
 });
 
 router.post('/message/:username', function(req,res,next){
-  console.log(req.body.msg);
   User.findOne({username: req.params.username}, function(err, users){
     if(err){
       console.log(err);
       res.send(err);
     }else{
-      console.log(req.body.msg);
       User.update({"username": req.params.username},
-      {"msg": req.body.message}, function (err, msg) {
+      {$push:{msg : {body:req.body.msg,date:new Date()}}}, function (err, msg) {
         if(err){
-          console.log(err);
+          console.log("There was some error. Please try again later");
           res.send(err);
         }
-        res.send('Successfully saved')
+        res.send('Successfully saved');
       });
     }
   });
@@ -92,9 +89,8 @@ router.get('/dashboard', function(req,res,next) {
   User.findOne({name:req.session.user},function(err,user) {
       if(err){
         console.log(err);
-        res.send(err);
+        res.send("There was some error.");
       }else{
-        console.log(user);
         res.render('dashboard', {users:user});
       }
   });
